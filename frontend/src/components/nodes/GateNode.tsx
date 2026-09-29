@@ -6,18 +6,35 @@
 // ============================================================================
 
 import { Handle, Position, type NodeProps } from '@xyflow/react';
+import { COMPONENT_PINS } from '@logic/shared';
 import type { CircuitNodeData } from './types.js';
-import { COLORS, GATE_SYMBOLS, NODE_WIDTH } from './constants.js';
+import { COLORS, GATE_MNEMONICS, INVERTED_GATES, NODE_WIDTH } from './constants.js';
 
 type Props = NodeProps & { data: CircuitNodeData };
 
-/** Вентили с двумя входами. */
-const TWO_INPUT_GATES = new Set(['AND', 'OR', 'XOR', 'NAND', 'NOR']);
+/**
+ * Вентили, которые рисует GateNode: фиксированный набор пинов a/b/c и выход out.
+ * Входы/выходы берём из COMPONENT_PINS, чтобы не дублировать список вручную.
+ */
+function pinColor(value: number | undefined): string {
+  return (value ?? 0) === 1 ? COLORS.signalOn : COLORS.signalOff;
+}
+
+/** Вертикальная позиция пина в процентах (равномерно по высоте). */
+function pinTop(index: number, total: number): string {
+  if (total <= 1) return '50%';
+  const start = 25;
+  const end = 75;
+  const step = (end - start) / (total - 1);
+  return `${start + step * index}%`;
+}
 
 export function GateNode({ data }: Props) {
   const { component, output, inputs, highlighted } = data;
   const isOn = output === 1;
-  const hasTwoInputs = TWO_INPUT_GATES.has(component.type);
+
+  // Все входные пины этого типа (a, b, для трёхвходовых — ещё c).
+  const inputPins = COMPONENT_PINS[component.type].inputs;
 
   return (
     <div
@@ -32,36 +49,36 @@ export function GateNode({ data }: Props) {
             : COLORS.nodeBorder,
       }}
     >
-      {/* Вход a. */}
-      <Handle
-        id="a"
-        type="target"
-        position={Position.Left}
-        style={{
-          top: hasTwoInputs ? '30%' : '50%',
-          background: (inputs.a ?? 0) === 1 ? COLORS.signalOn : COLORS.signalOff,
-          width: 10,
-          height: 10,
-        }}
-      />
+      {/* Входы (a, b, c — сколько есть у данного вентиля). */}
+      {inputPins.map((pin, i) => (
+        <div key={`in-${pin}`}>
+          <Handle
+            id={pin}
+            type="target"
+            position={Position.Left}
+            style={{
+              top: pinTop(i, inputPins.length),
+              background: pinColor(inputs[pin]),
+              width: 10,
+              height: 10,
+            }}
+          />
+          <span
+            className="pointer-events-none absolute text-[9px] font-medium text-slate-400"
+            style={{ top: `calc(${pinTop(i, inputPins.length)} - 6px)`, left: -14 }}
+          >
+            {pin}
+          </span>
+        </div>
+      ))}
 
-      {/* Вход b — только для двухвходовых вентилей. */}
-      {hasTwoInputs && (
-        <Handle
-          id="b"
-          type="target"
-          position={Position.Left}
-          style={{
-            top: '70%',
-            background: (inputs.b ?? 0) === 1 ? COLORS.signalOn : COLORS.signalOff,
-            width: 10,
-            height: 10,
-          }}
-        />
-      )}
-
-      {/* Обозначение вентиля. */}
-      <span className="text-sm font-bold text-slate-800">{GATE_SYMBOLS[component.type]}</span>
+      {/* Мнемоническое обозначение вентиля по ГОСТ (со штрихом инверсии при необходимости). */}
+      <span className="text-base font-bold text-slate-800">
+        {GATE_MNEMONICS[component.type]}
+        {INVERTED_GATES.has(component.type) && (
+          <span className="ml-0.5 align-super text-[10px] text-slate-500">▔</span>
+        )}
+      </span>
       {component.label && (
         <span className="text-[10px] text-slate-500">{component.label}</span>
       )}
@@ -73,6 +90,12 @@ export function GateNode({ data }: Props) {
         position={Position.Right}
         style={{ background: isOn ? COLORS.signalOn : COLORS.signalOff, width: 10, height: 10 }}
       />
+      <span
+        className="pointer-events-none absolute text-[9px] font-medium text-slate-400"
+        style={{ top: 'calc(50% - 6px)', right: -16 }}
+      >
+        out
+      </span>
     </div>
   );
 }

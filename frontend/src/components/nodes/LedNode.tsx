@@ -31,6 +31,12 @@ export function LedNode({ data }: Props) {
         position={Position.Left}
         style={{ background: isOn ? COLORS.signalOn : COLORS.signalOff, width: 10, height: 10 }}
       />
+      <span
+        className="pointer-events-none absolute text-[9px] font-medium text-slate-400"
+        style={{ top: 'calc(50% - 6px)', left: -14 }}
+      >
+        in
+      </span>
 
       {/* Лампочка. */}
       <div

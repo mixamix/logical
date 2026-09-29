@@ -55,7 +55,8 @@ const MAX_ATTEMPTS = 2;
 /** но НЕ локальные модели в Ollama — там запрос падает с 400. */
 const supportsJsonMode =
   config.llm.baseUrl.includes('api.openai.com') ||
-  config.llm.baseUrl.includes('api.deepseek.com');
+  config.llm.baseUrl.includes('api.deepseek.com') ||
+  config.llm.baseUrl.includes('api.groq.com');
 
 /**
  * Один запрос к LLM с последующей валидацией.

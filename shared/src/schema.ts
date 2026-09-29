@@ -28,6 +28,8 @@ export const componentSchema = z
     type: componentTypeSchema,
     label: z.string().optional(),
     state: bitSchema.optional(),
+    // Начальное состояние памяти: число (регистр/счётчик) или массив чисел (ОЗУ).
+    initialState: z.union([z.number().int().nonnegative(), z.array(z.number().int().nonnegative())]).optional(),
     pos: positionSchema,
   })
   .strict();

@@ -12,3 +12,59 @@ body,
   height: 100%;
   margin: 0;
 }
+
+/* ============================================================================
+   Подсветка пинов во время протягивания провода.
+   React Flow v12 сам навешивает на handles классы .valid/.invalid, когда задан
+   isValidConnection. Усиливаем их визуально и подсвечиваем подходящие входы.
+   ============================================================================ */
+
+/* Валидная цель соединения — зелёное свечение. */
+.react-flow__handle.valid {
+  background: #22c55e !important;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35);
+  transform: scale(1.25);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* Невалидная цель — красное свечение. */
+.react-flow__handle.invalid {
+  background: #ef4444 !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35);
+  transform: scale(1.25);
+}
+
+/* Во время протягивания все handles чуть крупнее — легче попасть. */
+.connecting-mode .react-flow__handle {
+  width: 12px;
+  height: 12px;
+}
+
+/* Соединительная линия (провод под курсором) — заметнее. */
+.react-flow__connection-path {
+  stroke: #3b82f6;
+  stroke-width: 2.5;
+  stroke-dasharray: 6 4;
+}
+
+/* Подсвеченное (выделенное) ребро — толще и с тенью. */
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.8));
+}
+
+/* Курсор-крестик над любым пином — намёк, что можно тянуть провод. */
+.react-flow__handle {
+  cursor: crosshair;
+}
+
+/* ============================================================================
+   Подсветка выделенного узла — жёлтая рамка вместо стандартной синей.
+   React Flow навешивает класс .selected на .react-flow__node.
+   ============================================================================ */
+.react-flow__node.selected > div {
+  outline: 2px solid #facc15;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.35);
+  border-radius: 0.5rem;
+}

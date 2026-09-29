@@ -59,6 +59,12 @@ export function SwitchNode({ id, data }: Props) {
         position={Position.Right}
         style={{ background: isOn ? COLORS.signalOn : COLORS.signalOff, width: 10, height: 10 }}
       />
+      <span
+        className="pointer-events-none absolute text-[9px] font-medium text-slate-400"
+        style={{ top: 'calc(50% - 6px)', right: -16 }}
+      >
+        out
+      </span>
     </div>
   );
 }

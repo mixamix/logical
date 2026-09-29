@@ -1,0 +1,1 @@
+LLM_ERROR status=502 message=Ошибка LLM-провайдера: Request timed out.

@@ -1,4 +1,4 @@
-<#
+﻿<#
   start.ps1 - автоматический запуск всех сервисов проекта.
   Запуск:  powershell -ExecutionPolicy Bypass -File .\scripts\start.ps1
 

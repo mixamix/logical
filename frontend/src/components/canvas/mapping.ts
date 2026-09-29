@@ -13,6 +13,7 @@ import type {
 } from '../nodes/types.js';
 import { COLORS } from '../nodes/constants.js';
 import type { SignalMap } from '../../simulator/index.js';
+import type { PinBits } from '../../simulator/gates.js';
 
 /** Собирает значения входов компонента из карты сигналов. */
 function collectInputs(
@@ -28,20 +29,43 @@ function collectInputs(
 }
 
 /**
+ * Собирает значения всех выходов компонента.
+ * Если симуляция вернула карту выходов — берём её; иначе восстанавливаем
+ * из плоской карты сигналов по списку выходных пинов типа.
+ */
+function collectOutputs(
+  componentId: string,
+  type: keyof typeof COMPONENT_PINS,
+  signals: SignalMap,
+  outputs: Record<string, PinBits>,
+): Record<string, Bit> {
+  const result: Record<string, Bit> = {};
+  for (const pin of COMPONENT_PINS[type].outputs) {
+    result[pin] =
+      outputs[componentId]?.[pin] ?? signals[`${componentId}.${pin}`] ?? 0;
+  }
+  return result;
+}
+
+/**
  * Преобразует Circuit + сигналы в массив узлов React Flow.
  */
 export function circuitToNodes(
   circuit: Circuit,
   signals: SignalMap = {},
-  outputs: Record<string, Bit> = {},
+  outputs: Record<string, PinBits> = {},
   highlight: string[] = [],
 ): CircuitNode[] {
   const highlighted = new Set(highlight);
 
   return circuit.components.map((component) => {
+    const outPins = collectOutputs(component.id, component.type, signals, outputs);
+    // «Главный» выход: первый выходной пин типа (для однодвыходных — out).
+    const primaryPin = COMPONENT_PINS[component.type].outputs[0];
     const data: CircuitNodeData = {
       component,
-      output: outputs[component.id] ?? 0,
+      output: primaryPin ? (outPins[primaryPin] ?? 0) : 0,
+      outputs: outPins,
       inputs: collectInputs(component.id, component.type, signals),
       highlighted: highlighted.has(component.id),
     };
@@ -52,8 +76,8 @@ export function circuitToNodes(
       position: { x: component.pos[0], y: component.pos[1] },
       data,
       draggable: true,
-      connectable: false,
-      deletable: false,
+      connectable: true,
+      deletable: true,
     };
   });
 }
@@ -103,14 +127,17 @@ export function wiresToEdges(
       data,
       animated: signal === 1,
       style: { stroke, strokeWidth: isHighlighted ? 3 : 2 },
+      // Широкий невидимый «коридор» для попадания мышью по тонкому проводу.
+      interactionWidth: 24,
       markerEnd: {
         type: MarkerType.ArrowClosed,
         color: stroke,
         width: 15,
         height: 15,
       },
-      selectable: false,
-      deletable: false,
+      selectable: true,
+      deletable: true,
+      focusable: true,
       zIndex: i,
     };
   });
