@@ -1,0 +1,36 @@
+# Render Blueprint: автоматический деплой backend.
+# Документация: https://render.com/docs/blueprint-spec
+#
+# Использование:
+#   1. Запушьте репозиторий в GitHub.
+#   2. В Render: New -> Blueprint -> выберите репозиторий.
+#   3. Render прочитает этот файл и создаст сервис автоматически.
+#   4. Задайте секретные переменные (sync: false) вручную в панели.
+
+services:
+  - type: web
+    name: logic-backend
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    rootDir: .
+    buildCommand: npm install && npm run build:shared && npm run build:backend
+    startCommand: node backend/dist/server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # --- Секреты: задаются вручную в панели Render (sync: false) ---
+      - key: LLM_API_KEY
+        sync: false
+      # --- Провайдер LLM (значения по умолчанию — Groq, бесплатный) ---
+      - key: LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: LLM_MODEL
+        value: llama-3.3-70b-versatile
+      - key: LLM_TIMEOUT_MS
+        value: "60000"
+      # --- CORS: укажите URL фронтенда на Vercel ---
+      - key: CORS_ORIGIN
+        sync: false
+      # PORT Render задаёт автоматически — не переопределяем.

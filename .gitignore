@@ -1,0 +1,35 @@
+# --- Зависимости ---
+node_modules/
+
+# --- Сборки ---
+dist/
+build/
+
+# --- TypeScript артефакты инкрементальной сборки ---
+*.tsbuildinfo
+
+# --- Сгенерированные конфиги (tsc -b из tsconfig.node.json) ---
+# vite.config.ts компилируется в .js/.d.ts в корне frontend — не коммитим.
+frontend/vite.config.js
+frontend/vite.config.d.ts
+
+# --- Переменные окружения (секреты!) ---
+.env
+.env.local
+.env.*.local
+
+# --- Логи ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Кэши инструментов ---
+.vite/
+.cache/
+
+# --- ОС и редакторы ---
+.DS_Store
+Thumbs.db
+.idea/
+*.swp

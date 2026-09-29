@@ -1,0 +1,14 @@
+/* Подключаем стили React Flow v12 — обязательны для корректной работы canvas. */
+/* @import должен идти до @tailwind, иначе PostCSS ругается. */
+@import '@xyflow/react/dist/style.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
